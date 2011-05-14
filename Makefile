@@ -1,3 +1,24 @@
+uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+
+ifeq ($(uname_S),Linux)
+    PREFERENCES := ~/.arduino/preferences.txt
+endif
+ifeq ($(uname_S),Darwin)
+    PREFERENCES_FILE := ~/Library/Arduino/preferences.txt
+    HARDWARE_DIR := /Applications/Arduino.app/Contents/Resources/Java/hardware
+    # FIXME setting the PATH on Mac OS isn't working... bug in OS X?
+    PATH := $(HARDWARE_DIR)/tools/avr/bin:$(PATH)
+    BOARDS_FILE := $(HARDWARE_DIR)/arduino/boards.txt
+    AVR_INCLUDE := $(HARDWARE_DIR)/tools/avr/avr/include
+endif
+
+ifneq ($(shell test -f $(PREFERENCES_FILE) && echo y),y)
+    $(error No arduino preferences.txt found. Try running the Arduino IDE)
+endif
+ifneq ($(shell test -f $(BOARDS_FILE) && echo y),y)
+    $(error No boards.txt found. You need to install the Arduino IDE)
+endif
+
 #DEVICE = atmega8
 DEVICE = atmega328p
 CLOCK = 16000000 # 16 MHz (we're using an external crystal)
