@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <avr/io.h>
+#include <util/delay.h>
 
 
 int main()
@@ -15,6 +16,7 @@ int main()
         } else {
             PORTB &= ~_BV( PIN5 );
         }
+        _delay_ms( 500 );
     }
 
     return 0;
