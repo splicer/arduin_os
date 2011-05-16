@@ -1,8 +1,8 @@
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 ifeq ($(uname_S),Linux)
-    PREFERENCES := ~/.arduino/preferences.txt
-    AVRDUDE_CONF = /usr/share/arduino/hardware/tools/avrdude.conf
+    PREFERENCES_FILE := ~/.arduino/preferences.txt
+    AVRDUDE_CONF := /usr/share/arduino/hardware/tools/avrdude.conf
 endif
 ifeq ($(uname_S),Darwin)
     PREFERENCES_FILE := ~/Library/Arduino/preferences.txt
