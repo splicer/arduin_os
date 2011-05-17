@@ -2,6 +2,7 @@ uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 ifeq ($(uname_S),Linux)
     PREFERENCES_FILE := ~/.arduino/preferences.txt
+    HARDWARE_DIR := /usr/share/arduino/hardware
     AVRDUDE_CONF := /usr/share/arduino/hardware/tools/avrdude.conf
 endif
 ifeq ($(uname_S),Darwin)
@@ -9,10 +10,10 @@ ifeq ($(uname_S),Darwin)
     HARDWARE_DIR := /Applications/Arduino.app/Contents/Resources/Java/hardware
     # FIXME setting the PATH on Mac OS isn't working... bug in OS X?
     PATH := $(HARDWARE_DIR)/tools/avr/bin:$(PATH)
-    BOARDS_FILE := $(HARDWARE_DIR)/arduino/boards.txt
-    AVR_INCLUDE := $(HARDWARE_DIR)/tools/avr/avr/include
     AVRDUDE_CONF := $(HARDWARE_DIR)/tools/avr/etc/avrdude.conf
 endif
+BOARDS_FILE := $(HARDWARE_DIR)/arduino/boards.txt
+AVR_INCLUDE := $(HARDWARE_DIR)/tools/avr/avr/include
 
 ifneq ($(shell test -f $(PREFERENCES_FILE) && echo y),y)
     $(error No arduino preferences.txt found. Try running the Arduino IDE)
