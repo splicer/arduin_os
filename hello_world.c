@@ -23,16 +23,23 @@ int main()
     CLKPR = 0;
 #endif
 
-    // enable the TIMER0_COMPA ISR
-    TIMSK0 = _BV( OCIE0A ); // TIMER0_COMPA
-    TIFR0 &= ~_BV( OCF0A ); // clear OCF0A flag
+#if defined( TIMSK0 )
+    // enable TIMER0_OVF_vect
+    TIMSK0 = _BV( TOIE0 );
 
     // normal (counter) mode, prescaled by 1024
     TCCR0A = 0;
     TCCR0B = _BV( CS02 ) | _BV( CS00 );
+#else
+    // enable TIMER_OVF_vect
+    TIMSK = _BV( TOIE0 );
+
+    // prescale by 1024
+    TCCR0 = _BV( CS02 ) | _BV( CS00 );
+#endif
 
     // set timer to fire after 1 tick
-    OCR0A = TCNT0 + CYCLES_PER_TICK;
+    TCNT0 = 0xFF - CYCLES_PER_TICK + 1;
 
     // enable interrupts
     sei();
@@ -42,10 +49,10 @@ int main()
 }
 
 
-ISR( TIMER0_COMPA_vect )
+ISR( TIMER0_OVF_vect )
 {
     // set timer to fire again after 1 tick
-    OCR0A += CYCLES_PER_TICK;
+    TCNT0 = 0xFF - CYCLES_PER_TICK + 1;
 
     ticks_since_boot++;
 
