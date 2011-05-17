@@ -31,7 +31,7 @@ int main()
     TCCR0A = 0;
     TCCR0B = _BV( CS02 ) | _BV( CS00 );
 #else
-    // enable TIMER_OVF_vect
+    // enable TIMER0_OVF_vect
     TIMSK = _BV( TOIE0 );
 
     // prescale by 1024
