@@ -1,7 +1,7 @@
 include env.mk
 
 AVRDUDE := avrdude -C $(AVRDUDE_CONF) \
-           -v -v -v -v \
+           -v \
            -p $(MCU) \
            -c $(UPLOAD_PROTOCOL) \
            -P $(PORT) \
