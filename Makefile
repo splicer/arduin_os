@@ -30,6 +30,11 @@ install: all
 clean:
 	$(RM) -r *.hex *.elf *.o
 
+%.s: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
+
+hello_world.s: hello_world.c
+
 hello_world.o: hello_world.c
 
 hello_world.elf: hello_world.o
