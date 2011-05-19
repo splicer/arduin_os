@@ -15,7 +15,11 @@ static volatile uint32_t ticks_since_boot = 0;
 
 int main()
 {
-    DDRB |= _BV( PIN5 ); // set digital pin 13 to output mode
+    DDRB |= _BV( PIN4 ); // set Arduino's pin 12 to output mode
+    DDRB |= _BV( PIN5 ); // set Arduino's pin 13 to output mode
+
+    PORTB |= _BV( PIN4 ); // set Arduino's pin 12 on
+    PORTB &= ~_BV( PIN5 ); // set Arduino's pin 13 off
 
 #if defined( CLKPR )
     // disable system clock prescaling
@@ -58,6 +62,7 @@ ISR( TIMER0_OVF_vect )
 
     // toggle LED every second
     if( !(ticks_since_boot % MS_TO_TICKS( 1000 )) ) {
-        PORTB ^= _BV( PIN5 ); // flip LED (Arduino's PIN9) state
+        PORTB ^= _BV( PIN4 ); // flip Arduino's pin 12 state
+        PORTB ^= _BV( PIN5 ); // flip Arduino's pin 13 state
     }
 }
