@@ -112,6 +112,36 @@ static void run_scheduler();
 static void exit_kernel() __attribute__((naked, noinline));
 
 
+
+
+
+void serial_init(void)
+{
+    // Set up the UART
+#define BAUD 9600
+    // USING u2x!!!
+#define UBRR_SETTING (F_CPU / 4 / (BAUD - 1) / 2)
+    UBRRH = (uint8_t)(UBRR_SETTING >> 8);
+    UBRRL = (uint8_t)UBRR_SETTING;
+
+    UCSRA = _BV(U2X);
+
+    // Enable the receiver and transmitter
+    UCSRB = _BV(RXEN) | _BV(TXEN);
+}
+
+
+
+void serial_send(uint8_t c)
+{
+        /* Wait for empty transmit buffer */
+        while ( !( UCSRA & (1<<UDRE)) )
+            ;
+        /* Put data into buffer, sends the data */
+        UDR = c;
+}
+
+
 // this will eventually become a generic task creation function
 static void init_task1()
 {
@@ -130,6 +160,9 @@ static void task1()
             PORTB |= _BV( PIN5 );
         } else {
             PORTB &= ~_BV( PIN5 );
+        }
+        if( (ticks_since_boot % 0x100) == 0) {
+            serial_send('a');
         }
     }
 }
@@ -160,6 +193,9 @@ int main()
     CLKPR = _BV( CLKPCE );
     CLKPR = 0;
 #endif
+
+    // Setup serial driver
+    serial_init();
 
 #if defined( TIMSK0 )
     // enable TIMER0_OVF_vect
