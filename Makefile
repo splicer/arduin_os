@@ -36,11 +36,11 @@ clean:
 serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h
 
-hello_world.s: hello_world.c
+kernel.s: kernel.c
 
-hello_world.o: hello_world.c
+kernel.o: kernel.c
 
-hello_world.elf: hello_world.o serial.o
+hello_world.elf: kernel.o serial.o
 	$(LINK.o) $^ -o $@
 
 hello_world.hex: hello_world.elf
