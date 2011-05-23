@@ -12,7 +12,7 @@ AVRDUDE := avrdude -C $(AVRDUDE_CONF) \
 CC := avr-gcc
 CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter \
          -gdwarf-2 -std=gnu99 -Os -funsigned-char -funsigned-bitfields \
-         -fpack-struct -fshort-enums -DF_CPU=$(F_CPU) -DBAUD=$(UPLOAD_SPEED)
+         -fpack-struct -fshort-enums -DF_CPU=$(F_CPU)
 TARGET_ARCH := -mmcu=$(MCU)
 LDFLAGS = -Wall
 AS := avr-as
@@ -33,6 +33,7 @@ clean:
 %.s: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
 
+serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h
 
 hello_world.s: hello_world.c
