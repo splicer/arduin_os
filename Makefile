@@ -12,7 +12,7 @@ AVRDUDE := avrdude -C $(AVRDUDE_CONF) \
 CC := avr-gcc
 CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter \
          -gdwarf-2 -std=gnu99 -Os -funsigned-char -funsigned-bitfields \
-         -fpack-struct -fshort-enums -DF_CPU=$(F_CPU)
+         -fpack-struct -fshort-enums -DF_CPU=$(F_CPU) -DBAUD=$(UPLOAD_SPEED)
 TARGET_ARCH := -mmcu=$(MCU)
 LDFLAGS = -Wall
 AS := avr-as

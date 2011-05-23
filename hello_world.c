@@ -117,9 +117,7 @@ static void exit_kernel() __attribute__((naked, noinline));
 
 void serial_init(void)
 {
-    // Set up the UART
-#define BAUD 9600
-    // USING u2x!!!
+    // Set up the UART using U2X
 #define UBRR_SETTING (F_CPU / 4 / (BAUD - 1) / 2)
 #if defined( UBRRH )
     UBRRH = (uint8_t)(UBRR_SETTING >> 8);
