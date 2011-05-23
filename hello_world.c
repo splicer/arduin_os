@@ -142,11 +142,19 @@ void serial_init(void)
 
 void serial_send( uint8_t c )
 {
+#if defined( UBRRH )
+    // Wait for empty transmit buffer
+    while( !( UCSRA & (1<<UDRE) ) )
+        ;
+    // Put data into buffer, sends the data
+    UDR = c;
+#else
     // Wait for empty transmit buffer
     while( !( UCSR0A & (1<<UDRE0) ) )
         ;
     // Put data into buffer, sends the data
     UDR0 = c;
+#endif
 }
 
 
