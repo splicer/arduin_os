@@ -33,11 +33,13 @@ clean:
 %.s: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
 
+serial.o: serial.c serial.h
+
 hello_world.s: hello_world.c
 
 hello_world.o: hello_world.c
 
-hello_world.elf: hello_world.o
+hello_world.elf: hello_world.o serial.o
 	$(LINK.o) $^ -o $@
 
 hello_world.hex: hello_world.elf
