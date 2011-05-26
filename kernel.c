@@ -116,7 +116,7 @@ static void exit_kernel() __attribute__((naked, noinline));
 // this will eventually become a generic task creation function
 static void init_task1()
 {
-    task1_sp = &task1_stack[sizeof( task1_stack ) - 35];
+    task1_sp = &task1_stack[sizeof( task1_stack ) - 36];
     task1_sp[2] = 0; // __zero_reg__ (r1)
     task1_sp[32] = _BV( SREG_I ); // SREG
     task1_sp[34] = (uint8_t)((uint16_t)&task1 >> 8);
@@ -253,8 +253,8 @@ ISR( TIMER0_OVF_vect, ISR_NAKED )
         , [counter]     "I" (_SFR_IO_ADDR( TCNT0 ))
         , [sreg_i_mask] "M" (_BV( SREG_I )) );
 
+    task1_sp = (uint8_t *)SP;
     ticks_since_boot++;
-
     SP = (uint16_t)kernel_sp;
 
     // pop kernel's context from stack
