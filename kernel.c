@@ -103,9 +103,9 @@
 
 static volatile uint32_t ticks_since_boot = 0;
 static uint8_t task1_stack[256];
-static volatile uint8_t *task1_sp;
-static volatile uint8_t *cur_task_sp;
-static volatile uint8_t *kernel_sp;
+static volatile uint8_t * volatile task1_sp;
+static volatile uint8_t * volatile cur_task_sp;
+static volatile uint8_t * volatile kernel_sp;
 
 static void init_task1();
 static void task1() __attribute__((noinline));
