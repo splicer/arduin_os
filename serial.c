@@ -1,6 +1,5 @@
 #include "serial.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 
 void serial_init()
@@ -29,10 +28,6 @@ void serial_init()
 
 void serial_send( uint8_t c )
 {
-    uint8_t old_sreg;
-
-    old_sreg = SREG;
-    cli();
 #if defined( UBRRH )
     // Wait for empty transmit buffer
     while( !( UCSRA & (1<<UDRE) ) )
@@ -46,5 +41,4 @@ void serial_send( uint8_t c )
     // Put data into buffer, sends the data
     UDR0 = c;
 #endif
-    SREG = old_sreg;
 }
