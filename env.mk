@@ -8,7 +8,9 @@ endif
 ifeq ($(uname_S),Darwin)
     PREFERENCES_FILE := ~/Library/Arduino/preferences.txt
     HARDWARE_DIR := /Applications/Arduino.app/Contents/Resources/Java/hardware
-    # FIXME setting the PATH on Mac OS isn't working... bug in OS X?
+    # workaround for bug in OS X where modifying PATH doesn't work
+    # see https://discussions.apple.com/message/10129603?messageID=10129603
+    SHELL := /bin/bash
     PATH := $(HARDWARE_DIR)/tools/avr/bin:$(PATH)
     AVRDUDE_CONF := $(HARDWARE_DIR)/tools/avr/etc/avrdude.conf
 endif
