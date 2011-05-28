@@ -25,6 +25,8 @@
 #define MS_TO_TICKS( ms ) ( (ms) >> 3 )
 #define TICKS_TO_MS( ticks ) ( (ticks) << 3 )
 
+#define MAX_THREADS (32)
+
 #define LEAVE_CRUMB( id ) PORTB = ( (id) & 0x0F ) | ( PORTB & 0xF0 )
 
 #define PUSH_CONTEXT() asm volatile(\
@@ -101,55 +103,105 @@
     "pop    r31\n\t"\
     "ret" )
 
-static volatile uint32_t ticks_since_boot = 0;
-static uint8_t task1_stack[256];
-static volatile uint8_t * volatile task1_sp;
-static volatile uint8_t * volatile cur_task_sp;
-static volatile uint8_t * volatile kernel_sp;
+struct Thread {
+    volatile uint16_t sp;
+    volatile uint8_t * volatile stack_bottom;
+};
 
-static void init_task1();
-static void task1() __attribute__((noinline));
+static volatile uint32_t ticks_since_boot = 0;
+static struct Thread threads[MAX_THREADS];
+static volatile uint32_t occupied_thread_slots = 0;
+static volatile uint8_t cur_thread_slot;
+static volatile uint16_t kernel_sp;
+
+static uint8_t thread1_stack[256];
+static uint8_t thread2_stack[256];
+
+static void thread1() __attribute__((noinline));
+static void thread2() __attribute__((noinline));
+
 static void run_scheduler();
 static void exit_kernel() __attribute__((naked, noinline));
+static void create_thread( void (* func)(), uint8_t *stack, uint16_t size );
 
 
-// this will eventually become a generic task creation function
-static void init_task1()
+static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 {
-    task1_sp = &task1_stack[sizeof( task1_stack ) - 36];
-    task1_sp[2] = 0; // __zero_reg__ (r1)
-    task1_sp[32] = _BV( SREG_I ); // SREG
-    task1_sp[34] = (uint8_t)((uint16_t)&task1 >> 8);
-    task1_sp[35] = (uint8_t)(uint16_t)&task1;
+    uint8_t slot;
+    uint32_t inv_slots;
+    struct Thread *t;
+
+    if( size < 36 ) {
+        // don't create the thread
+        // TODO die instead?
+        return;
+    }
+
+    // TODO find next available slot using an efficient bitscan
+    inv_slots = ~occupied_thread_slots;
+    for( slot = 0; slot < 32; slot++ ) {
+        if( (inv_slots & 1) ) break;
+        inv_slots >>= 1;
+    }
+    if( slot == 32 ) {
+        // all slots are occupied
+        // TODO die or return an error code?
+        return;
+    }
+    occupied_thread_slots |= 1 << slot;
+
+    t = &threads[slot];
+    t->stack_bottom = &stack[size - 1];
+    t->stack_bottom[0] = (uint8_t)(uint16_t)func;
+    t->stack_bottom[-1] = (uint8_t)(((uint16_t)func) >> 8);
+    // t->stack_bottom[-2] is r31
+    t->stack_bottom[-3] = _BV( SREG_I ); // SREG
+    // t->stack_bottom[-4] is r30
+    // ...
+    // t->stack_bottom[-32] is r2
+    t->stack_bottom[-33] = 0; // __zero_reg__ (r1)
+    // t->stack_bottom[-34] is r0
+    t->sp = (uint16_t)&t->stack_bottom[-35];
 }
 
 
-static void task1()
+static void thread1()
 {
     for( ;; ) {
-        if( (ticks_since_boot % 0x100) <= 0x7f) {
+        if( (ticks_since_boot % MS_TO_TICKS( 400 )) <= MS_TO_TICKS( 300 ) ) {
+            PORTB |= _BV( PIN4 );
+        } else {
+            PORTB &= ~_BV( PIN4 );
+        }
+        serial_send( '1' );
+    }
+}
+
+
+static void thread2()
+{
+    for( ;; ) {
+        if( (ticks_since_boot % MS_TO_TICKS( 300 )) <= MS_TO_TICKS( 10 ) ) {
             PORTB |= _BV( PIN5 );
         } else {
             PORTB &= ~_BV( PIN5 );
         }
-        if( (ticks_since_boot % 0x100) == 0) {
-            serial_send( 'a' );
-        }
+        serial_send( '2' );
     }
 }
 
 
 static void run_scheduler()
 {
-    cur_task_sp = task1_sp;
+    cur_thread_slot = (cur_thread_slot + 1) % 2;
 }
 
 
 static void exit_kernel()
 {
     PUSH_CONTEXT();
-    kernel_sp = (uint8_t *)SP;
-    SP = (uint16_t)cur_task_sp;
+    kernel_sp = SP;
+    SP = threads[cur_thread_slot].sp;
     POP_CONTEXT();
 }
 
@@ -183,8 +235,8 @@ int main()
     TCCR0 = _BV( CS02 ) | _BV( CS00 );
 #endif
 
-    // TODO: use a generic task creation function instead
-    init_task1();
+    create_thread( thread1, thread1_stack, sizeof( thread1_stack ) );
+    create_thread( thread2, thread2_stack, sizeof( thread2_stack ) );
 
     // set timer to fire after 1 tick
     TCNT0 = 0xFF - CYCLES_PER_TICK + 1;
@@ -253,9 +305,9 @@ ISR( TIMER0_OVF_vect, ISR_NAKED )
         , [counter]     "I" (_SFR_IO_ADDR( TCNT0 ))
         , [sreg_i_mask] "M" (_BV( SREG_I )) );
 
-    task1_sp = (uint8_t *)SP;
+    threads[cur_thread_slot].sp = SP;
     ticks_since_boot++;
-    SP = (uint16_t)kernel_sp;
+    SP = kernel_sp;
 
     // pop kernel's context from stack
     POP_CONTEXT();
