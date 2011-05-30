@@ -110,7 +110,9 @@ struct Thread {
 
 static volatile uint32_t ticks_since_boot = 0;
 static struct Thread threads[MAX_THREADS];
-static volatile uint32_t occupied_thread_slots = 0;
+static volatile uint8_t free_thread_ids[MAX_THREADS];
+static volatile uint8_t num_free_threads;
+
 static volatile uint8_t cur_thread_slot;
 static volatile uint16_t kernel_sp;
 
@@ -125,32 +127,25 @@ static void exit_kernel() __attribute__((naked, noinline));
 static void create_thread( void (* func)(), uint8_t *stack, uint16_t size );
 
 
+
 static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 {
-    uint8_t slot;
-    uint32_t inv_slots;
     struct Thread *t;
 
     if( size < 36 ) {
         // don't create the thread
-        // TODO die instead?
+        // TODO return an error
         return;
     }
 
-    // TODO find next available slot using an efficient bitscan
-    inv_slots = ~occupied_thread_slots;
-    for( slot = 0; slot < 32; slot++ ) {
-        if( (inv_slots & 1) ) break;
-        inv_slots >>= 1;
-    }
-    if( slot == 32 ) {
-        // all slots are occupied
-        // TODO die or return an error code?
+    if( num_free_threads == 0 ) {
+        // no more free threads
+        // TODO return an error
         return;
     }
-    occupied_thread_slots |= 1 << slot;
 
-    t = &threads[slot];
+    t = &threads[free_thread_ids[--num_free_threads]];
+
     t->stack_bottom = &stack[size - 1];
     t->stack_bottom[0] = (uint8_t)(uint16_t)func;
     t->stack_bottom[-1] = (uint8_t)(((uint16_t)func) >> 8);
@@ -234,6 +229,11 @@ int main()
     // prescale by 1024
     TCCR0 = _BV( CS02 ) | _BV( CS00 );
 #endif
+
+    for( uint8_t i = 0; i < MAX_THREADS; i++ ) {
+        free_thread_ids[i] = i;
+    }
+    num_free_threads = MAX_THREADS;
 
     create_thread( thread1, thread1_stack, sizeof( thread1_stack ) );
     create_thread( thread2, thread2_stack, sizeof( thread2_stack ) );
