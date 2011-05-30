@@ -112,8 +112,7 @@ static volatile uint32_t ticks_since_boot = 0;
 static struct Thread threads[MAX_THREADS];
 static volatile uint8_t free_thread_ids[MAX_THREADS];
 static volatile uint8_t num_free_threads;
-
-static volatile uint8_t cur_thread_slot;
+static volatile uint8_t cur_thread_id;
 static volatile uint16_t kernel_sp;
 
 static uint8_t thread1_stack[256];
@@ -125,14 +124,14 @@ static void thread2() __attribute__((noinline));
 static void run_scheduler();
 static void exit_kernel() __attribute__((naked, noinline));
 static void create_thread( void (* func)(), uint8_t *stack, uint16_t size );
-
+static void thread_self_destruct() __attribute__((noinline));
 
 
 static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 {
     struct Thread *t;
 
-    if( size < 36 ) {
+    if( size < 38 ) {
         // don't create the thread
         // TODO return an error
         return;
@@ -147,16 +146,24 @@ static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
     t = &threads[free_thread_ids[--num_free_threads]];
 
     t->stack_bottom = &stack[size - 1];
-    t->stack_bottom[0] = (uint8_t)(uint16_t)func;
-    t->stack_bottom[-1] = (uint8_t)(((uint16_t)func) >> 8);
-    // t->stack_bottom[-2] is r31
-    t->stack_bottom[-3] = _BV( SREG_I ); // SREG
-    // t->stack_bottom[-4] is r30
+    t->stack_bottom[0] = (uint8_t)(uint16_t)&thread_self_destruct;
+    t->stack_bottom[-1] = (uint8_t)(((uint16_t)&thread_self_destruct) >> 8);
+    t->stack_bottom[-2] = (uint8_t)(uint16_t)func;
+    t->stack_bottom[-3] = (uint8_t)(((uint16_t)func) >> 8);
+    // t->stack_bottom[-4] is r31
+    t->stack_bottom[-5] = _BV( SREG_I ); // SREG
+    // t->stack_bottom[-6] is r30
     // ...
-    // t->stack_bottom[-32] is r2
-    t->stack_bottom[-33] = 0; // __zero_reg__ (r1)
-    // t->stack_bottom[-34] is r0
-    t->sp = (uint16_t)&t->stack_bottom[-35];
+    // t->stack_bottom[-34] is r2
+    t->stack_bottom[-35] = 0; // __zero_reg__ (r1)
+    // t->stack_bottom[-36] is r0
+    t->sp = (uint16_t)&t->stack_bottom[-37];
+}
+
+
+static void thread_self_destruct()
+{
+    free_thread_ids[num_free_threads++] = cur_thread_id;
 }
 
 
@@ -188,7 +195,7 @@ static void thread2()
 
 static void run_scheduler()
 {
-    cur_thread_slot = (cur_thread_slot + 1) % 2;
+    cur_thread_id = (cur_thread_id + 1) % 2;
 }
 
 
@@ -196,7 +203,7 @@ static void exit_kernel()
 {
     PUSH_CONTEXT();
     kernel_sp = SP;
-    SP = threads[cur_thread_slot].sp;
+    SP = threads[cur_thread_id].sp;
     POP_CONTEXT();
 }
 
@@ -305,7 +312,7 @@ ISR( TIMER0_OVF_vect, ISR_NAKED )
         , [counter]     "I" (_SFR_IO_ADDR( TCNT0 ))
         , [sreg_i_mask] "M" (_BV( SREG_I )) );
 
-    threads[cur_thread_slot].sp = SP;
+    threads[cur_thread_id].sp = SP;
     ticks_since_boot++;
     SP = kernel_sp;
 
