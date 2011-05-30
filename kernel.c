@@ -176,6 +176,9 @@ static void thread1()
             PORTB &= ~_BV( PIN4 );
         }
         serial_send( '1' );
+
+        // FIXME: this should make thread1 die after 10 seconds, but it doesn't
+        if( ticks_since_boot >= MS_TO_TICKS( 10000 ) ) break;
     }
 }
 
@@ -195,8 +198,17 @@ static void thread2()
 
 static void run_scheduler()
 {
-    // TODO: don't hard-code this
-    cur_thread_id = ((cur_thread_id + 1) % 2) + 30;
+    // a horribly inefficient implementation of round-robin
+    for( ;; ) {
+        cur_thread_id = (cur_thread_id + 1) % MAX_THREADS;
+        for( uint8_t i = 0; i < num_free_threads; i++ ) {
+            if( cur_thread_id == free_thread_ids[i] ) {
+                break;
+            } else if( i == num_free_threads - 1 ) {
+                return;
+            }
+        }
+    }
 }
 
 
