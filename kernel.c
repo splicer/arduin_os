@@ -195,7 +195,8 @@ static void thread2()
 
 static void run_scheduler()
 {
-    cur_thread_id = (cur_thread_id + 1) % 2;
+    // TODO: don't hard-code this
+    cur_thread_id = ((cur_thread_id + 1) % 2) + 30;
 }
 
 
