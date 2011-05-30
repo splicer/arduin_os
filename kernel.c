@@ -163,7 +163,10 @@ static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 
 static void thread_self_destruct()
 {
+    cli();
     free_thread_ids[num_free_threads++] = cur_thread_id;
+    SP = kernel_sp;
+    POP_CONTEXT();
 }
 
 
