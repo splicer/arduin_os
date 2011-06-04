@@ -34,17 +34,17 @@ clean:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
 
 serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
-serial.o: serial.c serial.h
+serial.o: serial.c serial.h $(PREFERENCES_FILE)
 OBJS += serial.o
 
-kernel.s: kernel.c
+kernel.s: kernel.c $(PREFERENCES_FILE)
 
-kernel.o: kernel.c
+kernel.o: kernel.c $(PREFERENCES_FILE)
 OBJS += kernel.o
 
 .SECONDEXPANSION:
-hello_world.elf: $$(OBJS)
-	$(LINK.o) $^ -o $@
+hello_world.elf: $$(OBJS) $(PREFERENCES_FILE)
+	$(LINK.o) $(OBJS) -o $@
 
 hello_world.hex: hello_world.elf
 	$(RM) $@
