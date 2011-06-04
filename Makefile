@@ -23,7 +23,7 @@ ASFLAGS = --gstabs
 all: hello_world.hex
 
 .PHONY: install
-install: all
+install: all $(PORT)
 	$(AVRDUDE) -U flash:w:hello_world.hex:i
 
 .PHONY: clean
