@@ -37,9 +37,9 @@ serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h $(PREFERENCES_FILE)
 OBJS += serial.o
 
-kernel.s: kernel.c $(PREFERENCES_FILE)
+kernel.s: kernel.c serial.h $(PREFERENCES_FILE)
 
-kernel.o: kernel.c $(PREFERENCES_FILE)
+kernel.o: kernel.c serial.h $(PREFERENCES_FILE)
 OBJS += kernel.o
 
 .SECONDEXPANSION:
