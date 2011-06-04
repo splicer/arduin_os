@@ -105,7 +105,6 @@
 
 struct Thread {
     volatile uint16_t sp;
-    volatile uint8_t * volatile stack_bottom;
 };
 
 static volatile uint32_t ticks_since_boot = 0;
@@ -130,6 +129,7 @@ static void thread_self_destruct() __attribute__((noinline));
 static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 {
     struct Thread *t;
+    uint8_t *stack_bottom;
 
     if( size < 38 ) {
         // don't create the thread
@@ -145,19 +145,19 @@ static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
 
     t = &threads[free_thread_ids[--num_free_threads]];
 
-    t->stack_bottom = &stack[size - 1];
-    t->stack_bottom[0] = (uint8_t)(uint16_t)&thread_self_destruct;
-    t->stack_bottom[-1] = (uint8_t)(((uint16_t)&thread_self_destruct) >> 8);
-    t->stack_bottom[-2] = (uint8_t)(uint16_t)&func;
-    t->stack_bottom[-3] = (uint8_t)(((uint16_t)&func) >> 8);
-    // t->stack_bottom[-4] is r31
-    t->stack_bottom[-5] = _BV( SREG_I ); // SREG
-    // t->stack_bottom[-6] is r30
+    stack_bottom = &stack[size - 1];
+    stack_bottom[0] = (uint8_t)(uint16_t)&thread_self_destruct;
+    stack_bottom[-1] = (uint8_t)(((uint16_t)&thread_self_destruct) >> 8);
+    stack_bottom[-2] = (uint8_t)(uint16_t)&func;
+    stack_bottom[-3] = (uint8_t)(((uint16_t)&func) >> 8);
+    // stack_bottom[-4] is r31
+    stack_bottom[-5] = _BV( SREG_I ); // SREG
+    // stack_bottom[-6] is r30
     // ...
-    // t->stack_bottom[-34] is r2
-    t->stack_bottom[-35] = 0; // __zero_reg__ (r1)
-    // t->stack_bottom[-36] is r0
-    t->sp = (uint16_t)&t->stack_bottom[-37];
+    // stack_bottom[-34] is r2
+    stack_bottom[-35] = 0; // __zero_reg__ (r1)
+    // stack_bottom[-36] is r0
+    t->sp = (uint16_t)&stack_bottom[-37];
 }
 
 
