@@ -180,7 +180,6 @@ static void thread1()
         }
         serial_send( '1' );
 
-        // FIXME: this should make thread1 die after 10 seconds, but it doesn't
         if( ticks_since_boot >= MS_TO_TICKS( 10000 ) ) break;
     }
 }
