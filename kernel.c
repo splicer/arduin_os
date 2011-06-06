@@ -148,8 +148,8 @@ static void create_thread( void (* func)(), uint8_t *stack, uint16_t size )
     stack_bottom = &stack[size - 1];
     stack_bottom[0] = (uint8_t)(uint16_t)&thread_self_destruct;
     stack_bottom[-1] = (uint8_t)(((uint16_t)&thread_self_destruct) >> 8);
-    stack_bottom[-2] = (uint8_t)(uint16_t)&func;
-    stack_bottom[-3] = (uint8_t)(((uint16_t)&func) >> 8);
+    stack_bottom[-2] = (uint8_t)(uint16_t)func;
+    stack_bottom[-3] = (uint8_t)(((uint16_t)func) >> 8);
     // stack_bottom[-4] is r31
     stack_bottom[-5] = _BV( SREG_I ); // SREG
     // stack_bottom[-6] is r30
