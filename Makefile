@@ -28,7 +28,7 @@ install: all $(PORT)
 
 .PHONY: clean
 clean:
-	$(RM) -r *.hex *.elf *.o
+	$(RM) $(GENERATED_FILES)
 
 %.s: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
@@ -36,16 +36,21 @@ clean:
 serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h $(PREFERENCES_FILE)
 OBJS += serial.o
+GENERATED_FILES += serial.o
 
 kernel.s: kernel.c serial.h $(PREFERENCES_FILE)
+GENERATED_FILES += kernel.s
 
 kernel.o: kernel.c serial.h $(PREFERENCES_FILE)
 OBJS += kernel.o
+GENERATED_FILES += kernel.o
 
 .SECONDEXPANSION:
 hello_world.elf: $$(OBJS) $(PREFERENCES_FILE)
 	$(LINK.o) $(OBJS) -o $@
+GENERATED_FILES += hello_world.elf
 
 hello_world.hex: hello_world.elf
 	$(RM) $@
 	avr-objcopy -j .text -j .data -O ihex $< $@
+GENERATED_FILES += hello_world.hex
