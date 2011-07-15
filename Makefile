@@ -38,10 +38,14 @@ serial.o: serial.c serial.h $(PREFERENCES_FILE)
 OBJS += serial.o
 GENERATED_FILES += serial.o
 
-kernel.s: kernel.c serial.h $(PREFERENCES_FILE)
+logger.o: logger.c logger.h serial.h $(PREFERENCES_FILE)
+OBJS += logger.o
+GENERATED_FILES += logger.o
+
+kernel.s: kernel.c serial.h logger.h $(PREFERENCES_FILE)
 GENERATED_FILES += kernel.s
 
-kernel.o: kernel.c serial.h $(PREFERENCES_FILE)
+kernel.o: kernel.c serial.h logger.h $(PREFERENCES_FILE)
 OBJS += kernel.o
 GENERATED_FILES += kernel.o
 

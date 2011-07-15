@@ -13,11 +13,13 @@
 // arduino pin 12 -> port B, pin 4
 // arduino pin 13 -> port B, pin 5
 
-#include "serial.h"
+#include "logger.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdint.h>
+
+#define FILE_ID FILE_KERNEL
 
 // given that timer0 will be prescaled by 1024,
 // let 1 tick equal exactly 8 msec
@@ -178,7 +180,7 @@ static void thread1()
         } else {
             PORTB &= ~_BV( PIN4 );
         }
-        serial_send( '1' );
+        PRINT0( "thread1" );
 
         if( ticks_since_boot >= MS_TO_TICKS( 10000 ) ) break;
     }
@@ -193,7 +195,7 @@ static void thread2()
         } else {
             PORTB &= ~_BV( PIN5 );
         }
-        serial_send( '2' );
+        PRINT1( "thread %u", 2 );
     }
 }
 
@@ -234,8 +236,7 @@ int main()
     CLKPR = 0;
 #endif
 
-    // Setup serial driver
-    serial_init();
+    logger_init( &ticks_since_boot );
 
 #if defined( TIMSK0 )
     // enable TIMER0_OVF_vect
