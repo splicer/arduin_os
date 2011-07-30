@@ -264,6 +264,8 @@ int main()
     // set timer to fire after 1 tick
     TCNT0 = 0xFF - CYCLES_PER_TICK + 1;
 
+    print_timestamp();
+
     // main kernel loop
     for( ;; ) {
         run_scheduler();
@@ -329,8 +331,11 @@ ISR( TIMER0_OVF_vect, ISR_NAKED )
         , [sreg_i_mask] "M" (_BV( SREG_I )) );
 
     threads[cur_thread_id].sp = SP;
-    ticks_since_boot++;
     SP = kernel_sp;
+
+    if( !(ticks_since_boot++ % 0x100) ) {
+        print_timestamp();
+    }
 
     // pop kernel's context from stack
     POP_CONTEXT();
