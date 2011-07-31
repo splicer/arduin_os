@@ -43,10 +43,10 @@ void print_timestamp()
 
     serial_send( 7 ); // timestamp symbol (not num args)
 
-    serial_send( (uint8_t)(abs_time >> 24) );
-    serial_send( (uint8_t)(abs_time >> 16) );
-    serial_send( (uint8_t)(abs_time >> 8) );
-    serial_send( (uint8_t)abs_time );
+    enc_serial_send( (uint8_t)(abs_time >> 24) );
+    enc_serial_send( (uint8_t)(abs_time >> 16) );
+    enc_serial_send( (uint8_t)(abs_time >> 8) );
+    enc_serial_send( (uint8_t)abs_time );
 }
 
 
