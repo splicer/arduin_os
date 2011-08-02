@@ -41,7 +41,7 @@ void print_timestamp()
     ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
         serial_send( 0xfe ); // start packet
 
-        serial_send( 7 ); // timestamp symbol (not num args)
+        serial_send( 0xff ); // packet type = timestamp
 
         enc_serial_send( (uint8_t)((*ticks_since_boot) >> 24) );
         enc_serial_send( (uint8_t)((*ticks_since_boot) >> 16) );
@@ -59,7 +59,7 @@ void print0( uint16_t id )
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 0 ); // num args
+        serial_send( 0 ); // packet type = print0
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -76,7 +76,7 @@ void print1( uint16_t id, uint16_t a )
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 1 ); // num args
+        serial_send( 1 ); // packet type = print1
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -96,7 +96,7 @@ void print2( uint16_t id, uint16_t a, uint16_t b )
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 2 ); // num args
+        serial_send( 2 ); // packet type = print2
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -119,7 +119,7 @@ void print3( uint16_t id, uint16_t a, uint16_t b, uint16_t c )
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 3 ); // num args
+        serial_send( 3 ); // packet type = print3
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -145,7 +145,7 @@ void print4( uint16_t id, uint16_t a, uint16_t b, uint16_t c, uint16_t d )
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 4 ); // num args
+        serial_send( 4 ); // packet type = print4
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -179,7 +179,7 @@ void print5( uint16_t id,
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 5 ); // num args
+        serial_send( 5 ); // packet type = print5
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
@@ -217,7 +217,7 @@ void print6( uint16_t id,
 
         serial_send( 0xfe ); // start packet
 
-        serial_send( 6 ); // num args
+        serial_send( 6 ); // packet type = print6
         enc_serial_send( (uint8_t)(id >> 8) );
         enc_serial_send( (uint8_t)id );
         enc_serial_send( tick );
