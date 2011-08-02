@@ -15,17 +15,20 @@
 #define PRINT0( str ) \
     print0( PRINT_ID )
 #define PRINT1( str, a ) \
-    print1( PRINT_ID, (a) )
+    print1( PRINT_ID, (uint16_t)(a) )
 #define PRINT2( str, a, b ) \
-    print2( PRINT_ID, (a), (b) )
+    print2( PRINT_ID, (uint16_t)(a), (uint16_t)(b) )
 #define PRINT3( str, a, b, c ) \
-    print3( PRINT_ID, (a), (b), (c) )
+    print3( PRINT_ID, (uint16_t)(a), (uint16_t)(b), (uint16_t)(c) )
 #define PRINT4( str, a, b, c, d ) \
-    print4( PRINT_ID, (a), (b), (c), (d) )
+    print4( PRINT_ID, (uint16_t)(a), (uint16_t)(b), (uint16_t)(c), \
+            (uint16_t)(d) )
 #define PRINT5( str, a, b, c, d, e ) \
-    print5( PRINT_ID, (a), (b), (c), (d), (e) )
+    print5( PRINT_ID, (uint16_t)(a), (uint16_t)(b), (uint16_t)(c), \
+            (uint16_t)(d), (uint16_t)(e) )
 #define PRINT6( str, a, b, c, d, e, f ) \
-    print6( PRINT_ID, (a), (b), (c), (d), (e), (f) )
+    print6( PRINT_ID, (uint16_t)(a), (uint16_t)(b), (uint16_t)(c), \
+            (uint16_t)(d), (uint16_t)(e), (uint16_t)(f) )
 
 void logger_init( volatile uint32_t *ticks_since_boot );
 void print_timestamp();
