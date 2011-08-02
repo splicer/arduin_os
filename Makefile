@@ -52,6 +52,7 @@ GENERATED_FILES += kernel.o
 .SECONDEXPANSION:
 hello_world.elf: $$(OBJS) $(PREFERENCES_FILE)
 	$(LINK.o) $(OBJS) -o $@
+	chmod 644 $@
 GENERATED_FILES += hello_world.elf
 
 hello_world.hex: hello_world.elf
