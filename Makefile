@@ -58,3 +58,9 @@ hello_world.hex: hello_world.elf
 	$(RM) $@
 	avr-objcopy -j .text -j .data -O ihex $< $@
 GENERATED_FILES += hello_world.hex
+
+.PHONY: device_output.bin
+device_output.bin:
+	stty -F $(PORT) $(UPLOAD_SPEED) raw cs8
+	dd if=$(PORT) of=$@ bs=1 count=8192
+GENERATED_FILES += device_output.bin
