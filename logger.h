@@ -30,6 +30,14 @@
     print6( PRINT_ID, (uint16_t)(a), (uint16_t)(b), (uint16_t)(c), \
             (uint16_t)(d), (uint16_t)(e), (uint16_t)(f) )
 
+#define WARN0 PRINT0
+#define WARN1 PRINT1
+#define WARN2 PRINT2
+#define WARN3 PRINT3
+#define WARN4 PRINT4
+#define WARN5 PRINT5
+#define WARN6 PRINT6
+
 void logger_init( volatile uint32_t *ticks_since_boot );
 void print_timestamp();
 void print0( uint16_t id );
