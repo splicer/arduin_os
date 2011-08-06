@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 
 
-
-
 def parser(read_byte_func):
     packet = []
     packet_start = False
