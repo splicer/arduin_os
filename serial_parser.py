@@ -10,10 +10,12 @@ def parser(read_byte_func):
         if not packet_start or half_byte != None:
             return False
         l = len(packet)
-        if l < 5:
+        if l == 0:
             return False
         if packet[0] == 0xff:
             expected_l = 5
+        elif packet[0] == 0xfb:
+            expected_l = 1
         elif packet[0] < 0xfc:
             expected_l = packet[0] * 2 + 5
         else:
