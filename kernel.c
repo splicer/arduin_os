@@ -236,8 +236,6 @@ int main()
     CLKPR = 0;
 #endif
 
-    logger_init( &ticks_since_boot );
-
 #if defined( TIMSK0 )
     // enable TIMER0_OVF_vect
     TIMSK0 = _BV( TOIE0 );
@@ -264,7 +262,7 @@ int main()
     // set timer to fire after 1 tick
     TCNT0 = 0xFF - CYCLES_PER_TICK + 1;
 
-    print_timestamp();
+    logger_init( &ticks_since_boot );
 
     // main kernel loop
     for( ;; ) {

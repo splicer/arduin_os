@@ -33,6 +33,12 @@ void logger_init( volatile uint32_t * _ticks_since_boot )
 {
     ticks_since_boot = _ticks_since_boot;
     serial_init();
+
+    ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+        serial_send( 0xfe ); // start packet
+
+        serial_send( 0xfb ); // packet type = init
+    }
 }
 
 
