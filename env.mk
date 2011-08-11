@@ -4,6 +4,7 @@ ifeq ($(uname_S),Linux)
     PREFERENCES_FILE := ~/.arduino/preferences.txt
     HARDWARE_DIR := /usr/share/arduino/hardware
     AVRDUDE_CONF := /usr/share/arduino/hardware/tools/avrdude.conf
+    AVR_INCLUDE := /usr/lib/avr/include
 endif
 ifeq ($(uname_S),Darwin)
     PREFERENCES_FILE := ~/Library/Arduino/preferences.txt
@@ -13,9 +14,9 @@ ifeq ($(uname_S),Darwin)
     SHELL := /bin/bash
     PATH := $(HARDWARE_DIR)/tools/avr/bin:$(PATH)
     AVRDUDE_CONF := $(HARDWARE_DIR)/tools/avr/etc/avrdude.conf
+    AVR_INCLUDE := $(HARDWARE_DIR)/tools/avr/avr/include
 endif
 BOARDS_FILE := $(HARDWARE_DIR)/arduino/boards.txt
-AVR_INCLUDE := $(HARDWARE_DIR)/tools/avr/avr/include
 
 ifneq ($(shell test -f $(PREFERENCES_FILE) && echo y),y)
     $(error No arduino preferences.txt found. Try running the Arduino IDE)
