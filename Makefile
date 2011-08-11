@@ -65,3 +65,8 @@ device_output.bin:
 	stty -F $(PORT) $(UPLOAD_SPEED) raw cs8
 	dd if=$(PORT) of=$@ bs=1 count=8192
 GENERATED_FILES += device_output.bin
+
+.PHONY: tags
+tags:
+	ctags -R . $(AVR_INCLUDE)
+GENERATED_FILES += tags
