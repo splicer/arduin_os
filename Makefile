@@ -41,7 +41,7 @@ rosetta_stone:: logger.h
 GENERATED_FILES += rosetta_stone
 
 rosetta_stone:: $$(OBJS)
-	@echo ./update_rosetta_stone $(patsubst %.o,%.c,$?)
+	./update_rosetta_stone $(shell ls $(patsubst %.o,%.c,$?) 2> /dev/null)
 
 serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h $(PREFERENCES_FILE)
