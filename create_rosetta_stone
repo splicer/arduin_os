@@ -1,0 +1,27 @@
+#! /bin/bash
+
+USER_VERSION=1 # increment this if you change the schema
+
+function create_db() {
+    sqlite3 rosetta_stone "\
+create table files(
+    fileid          INTEGER PRIMARY KEY,
+    filename        TEXT UNIQUE NOT NULL
+);
+create table prints(
+    lineno          INTEGER NOT NULL,
+    iswarn          INTEGER NOT NULL,
+    format          TEXT NOT NULL,
+    fileid          INTEGER NOT NULL,
+    FOREIGN KEY(fileid) REFERENCES files(fileid),
+    PRIMARY KEY(lineno, fileid)
+);
+pragma user_version=${USER_VERSION};
+"
+}
+
+if [ -e rosetta_stone ]; then
+    echo "ERROR: rosetta_stone already exists" 1>&2
+    exit 1
+fi
+create_db
