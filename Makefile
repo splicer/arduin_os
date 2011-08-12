@@ -1,5 +1,7 @@
 include env.mk
 
+.SECONDEXPANSION:
+
 AVRDUDE := avrdude -C $(AVRDUDE_CONF) \
            -v \
            -p $(MCU) \
@@ -20,7 +22,7 @@ TARGET_MACH := $(TARGET_ARCH)
 ASFLAGS = --gstabs
 
 .PHONY: all
-all: hello_world.hex
+all: hello_world.hex rosetta_stone
 
 .PHONY: install
 install: all $(PORT)
@@ -33,15 +35,13 @@ clean:
 %.s: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -S $(OUTPUT_OPTION) $<
 
-.PHONY: %.clue
-%.clue: %.c rosetta_stone
-	#TODO
-	@echo ./update_rosetta_stone $<
-
-rosetta_stone:
-	#TODO create database file
-	@echo ./create_rosetta_stone
+rosetta_stone:: logger.h
+	$(RM) $@
+	./create_rosetta_stone
 GENERATED_FILES += rosetta_stone
+
+rosetta_stone:: $$(OBJS)
+	@echo ./update_rosetta_stone $(patsubst %.o,%.c,$?)
 
 serial.o: CFLAGS += -DBAUD=$(UPLOAD_SPEED)
 serial.o: serial.c serial.h $(PREFERENCES_FILE)
@@ -59,7 +59,6 @@ kernel.o: kernel.c serial.h logger.h $(PREFERENCES_FILE)
 OBJS += kernel.o
 GENERATED_FILES += kernel.o
 
-.SECONDEXPANSION:
 hello_world.elf: $$(OBJS) $(PREFERENCES_FILE)
 	$(LINK.o) $(OBJS) -o $@
 	chmod 644 $@
