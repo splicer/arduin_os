@@ -29,8 +29,6 @@
 
 #define MAX_THREADS (32)
 
-#define LEAVE_CRUMB( id ) PORTB = ( (id) & 0x0F ) | ( PORTB & 0xF0 )
-
 #define PUSH_CONTEXT() asm volatile(\
     "push   r31\n\t"\
     "in     r31, __SREG__\n\t"\
